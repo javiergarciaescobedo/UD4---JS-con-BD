@@ -10,9 +10,37 @@
   <div class="container">
     <h1>Mis Tareas</h1>
     <form id="task-form">
-      <input type="text" id="task-input" placeholder="Escribe una tarea..." required />
-      <button type="submit">Añadir</button>
-    </form>
+        <div class="form-group">
+          <label for="task-title">Título:</label>
+          <input type="text" id="task-title" placeholder="Título de la tarea" required />
+        </div>
+      
+        <div class="form-group">
+          <label for="task-description">Descripción:</label>
+          <textarea id="task-description" placeholder="Descripción larga..."></textarea>
+        </div>
+      
+        <div class="form-row">
+          <div class="form-group">
+            <label for="task-date">Fecha:</label>
+            <input type="date" id="task-date" />
+          </div>
+          <div class="form-group">
+            <label for="task-time">Hora:</label>
+            <input type="time" id="task-time" />
+          </div>
+          <div class="form-group">
+            <label for="task-priority">Prioridad:</label>
+            <select id="task-priority">
+              <option value="1">⭐ (Baja)</option>
+              <option value="2">⭐⭐ (Media)</option>
+              <option value="3">⭐⭐⭐ (Alta)</option>
+            </select>
+          </div>
+        </div>
+      
+        <button type="submit">Añadir</button>
+      </form>      
     <ul id="task-list"></ul>
   </div>
   <script src="app.js"></script>
