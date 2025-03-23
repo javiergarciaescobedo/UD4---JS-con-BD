@@ -1,7 +1,9 @@
 // 🔑 Sustituye con tu URL y anonKey de Supabase
 const supabaseUrl = 'https://rinlymrxxvfzrtxihwfc.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpbmx5bXJ4eHZmenJ0eGlod2ZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI2NzY1MzcsImV4cCI6MjA1ODI1MjUzN30.jWgIAcyFJ2cflaj-5vpwvzxQQ89ooCfekLRHtJiod9I';
-const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
 
 const taskForm = document.getElementById('task-form');
 const taskInput = document.getElementById('task-input');
