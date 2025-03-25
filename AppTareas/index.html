@@ -1,65 +1,66 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Gestor de Tareas</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-</head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Tareas</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    </head>
 <body>
-  <div class="container">
-    <h1>Mis Tareas</h1>
-    <button id="show-form-btn">➕ Nueva tarea</button>
+    <header>
+        <h1>Gestor de Tareas</h1>
+        <button id="botonNuevaTarea">➕ Nueva tarea</button>
+    </header>
 
-<div id="form-container" style="display: none;">
-<form id="task-form">
-        <div class="form-group">
-          <label for="task-title">Título:</label>
-          <input type="text" id="task-title" placeholder="Título de la tarea" required />
-        </div>
-      
-        <div class="form-group">
-          <label for="task-description">Descripción:</label>
-          <textarea id="task-description" placeholder="Descripción larga..."></textarea>
-        </div>
-      
-        <div class="form-row">
-          <div class="form-group">
-            <label for="task-date">Fecha:</label>
-            <input type="date" id="task-date" />
-          </div>
-          <div class="form-group">
-            <label for="task-time">Hora:</label>
-            <input type="time" id="task-time" />
-          </div>
-          <div class="form-group">
-            <label for="task-priority">Prioridad:</label>
-            <select id="task-priority">
-              <option value="1">⭐ (Baja)</option>
-              <option value="2">⭐⭐ (Media)</option>
-              <option value="3">⭐⭐⭐ (Alta)</option>
-            </select>
-          </div>
-        </div>
-      
-        
-        <div class="form-group">
-    <label for="task-category">Categoría:</label>
-    <select id="task-category"></select>
-  </div>
-  
-  
-  <button type="submit">Añadir</button>
-</form>
-</div>      
-    <label for="filter-tasks">Mostrar:</label>
-<select id="filter-tasks">
-  <option value="all">Todas</option>
-  <option value="pending">Sólo no completadas</option>
-</select>
+    <section id="formularioNuevaTarea" class="oculto">
+        <h2>Nueva Tarea</h2>
+        <form id="formularioTarea">
+            <div>
+                <label for="titulo">Título (obligatorio):</label>
+                <input type="text" id="titulo" name="titulo" required>
+            </div>
+            <div>
+                <label for="descripcion">Descripción:</label>
+                <textarea id="descripcion" name="descripcion"></textarea>
+            </div>
+            <div>
+                <label for="fecha">Fecha y hora:</label>
+                <input type="datetime-local" id="fecha" name="fecha">
+            </div>
+            <div>
+                <label for="prioridad">Prioridad (1–3):</label>
+                <select id="prioridad" name="prioridad">
+                    <option value="1">⭐</option>
+                    <option value="2">⭐⭐</option>
+                    <option value="3">⭐⭐⭐</option>
+                </select>
+            </div>
+            <div>
+                <label for="categoria">Categoría:</label>
+                <select id="categoria" name="categoria">
+                    <option value="">(Sin categoría)</option>
+                    </select>
+            </div>
+            <button type="submit">Guardar Tarea</button>
+            <button type="button" id="botonCerrarFormulario">✖ Cerrar</button>
+        </form>
+    </section>
 
-<ul id="task-list"></ul>
-  </div>
-  <script src="app.js"></script>
+    <section id="filtros">
+        <h3>Filtros:</h3>
+        <label>
+            <input type="radio" name="filtro" value="todas" checked> Todas las tareas
+        </label>
+        <label>
+            <input type="radio" name="filtro" value="noCompletadas"> Solo no completadas
+        </label>
+    </section>
+
+    <section id="listadoTareas">
+        <h2>Lista de Tareas</h2>
+        </section>
+
+    <script src="app.js"></script>
 </body>
 </html>

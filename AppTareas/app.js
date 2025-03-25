@@ -1,222 +1,368 @@
-// 🔑 Sustituye con tu URL y anonKey de Supabase
-const supabaseUrl = 'https://rinlymrxxvfzrtxihwfc.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpbmx5bXJ4eHZmenJ0eGlod2ZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI2NzY1MzcsImV4cCI6MjA1ODI1MjUzN30.jWgIAcyFJ2cflaj-5vpwvzxQQ89ooCfekLRHtJiod9I';
-
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-
-
-const taskForm = document.getElementById('task-form');
-const taskInput = document.getElementById('task-input');
-const taskList = document.getElementById('task-list');
-
-// Leer tareas al cargar la página
 document.addEventListener('DOMContentLoaded', () => {
-  fetchTasks();
-  loadCategories();
-});
+  // *** CONFIGURACIÓN DE SUPABASE (Incluido aquí para evitar errores de inicialización) ***
+  const supabaseUrl = 'https://rinlymrxxvfzrtxihwfc.supabase.co';
+  const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpbmx5bXJ4eHZmenJ0eGlod2ZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI2NzY1MzcsImV4cCI6MjA1ODI1MjUzN30.jWgIAcyFJ2cflaj-5vpwvzxQQ89ooCfekLRHtJiod9I';
 
-// Mostrar/ocultar formulario
-const showFormBtn = document.getElementById('show-form-btn');
-const formContainer = document.getElementById('form-container');
-showFormBtn.addEventListener('click', () => {
-  formContainer.style.display = formContainer.style.display === 'none' ? 'block' : 'none';
-});
+  const supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+  // *******************************************************************************
 
-// Cargar categorías desde Supabase
-async function loadCategories() {
-  const { data, error } = await supabase.from('categories').select('*');
-  const categorySelect = document.getElementById('task-category');
-  if (data) {
-    data.forEach(cat => {
-      const option = document.createElement('option');
-      option.value = cat.id;
-      option.textContent = cat.name;
-      categorySelect.appendChild(option);
-    });
+  // Elementos del DOM
+  const botonNuevaTarea = document.getElementById('botonNuevaTarea');
+  const formularioNuevaTarea = document.getElementById('formularioNuevaTarea');
+  const formularioTarea = document.getElementById('formularioTarea');
+  const botonCerrarFormulario = document.getElementById('botonCerrarFormulario');
+  const listadoTareas = document.getElementById('listadoTareas');
+  const filtroTodas = document.querySelector('input[value="todas"]');
+  const filtroNoCompletadas = document.querySelector('input[value="noCompletadas"]');
+  const selectCategoriaFormulario = document.getElementById('categoria');
+
+  let tareas = []; // Array para almacenar las tareas (temporalmente en el navegador)
+  let formularioVisible = false;
+  let filtroActivo = 'todas';
+
+  // *** FUNCIONES PARA INTERACTUAR CON SUPABASE (a implementar por el alumnado) ***
+
+  async function cargarCategorias() {
+      try {
+          const { data: categorias, error } = await supabase
+            .from('categorias')
+            .select('id, nombre');
+
+          if (error) {
+              console.error('Error al cargar categorías:', error);
+          } else {
+              categorias.forEach(categoria => {
+                  const opcion = document.createElement('option');
+                  opcion.value = categoria.id;
+                  opcion.textContent = categoria.nombre;
+                  selectCategoriaFormulario.appendChild(opcion);
+              });
+          }
+      } catch (error) {
+          console.error('Error al cargar categorías:', error);
+      }
   }
-}
 
-// Filtrado por tareas completadas
-document.getElementById('filter-tasks').addEventListener('change', fetchTasks);
+  async function cargarTareas() {
+      try {
+          const { data: tareasObtenidas, error } = await supabase
+            .from('tareas')
+            .select('*')
+            .order('fecha', { ascending: false })
+            .order('hora', { ascending: false });
 
+          if (error) {
+              console.error('Error al cargar tareas:', error);
+          } else {
+              tareas = tareasObtenidas;
+              mostrarTareas(tareas);
+          }
+      } catch (error) {
+          console.error('Error al cargar tareas:', error);
+      }
+  }
 
-taskForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const title = document.getElementById('task-title').value.trim();
-    const description = document.getElementById('task-description').value.trim();
-    const dueDate = document.getElementById('task-date').value;
-    const dueTime = document.getElementById('task-time').value;
-    const priority = parseInt(document.getElementById('task-priority').value);
+  async function guardarTarea(tarea) {
+      try {
+          const { error } = await supabase
+            .from('tareas')
+            .insert([tarea]);
 
-    if (title === '') return;
+          if (error) {
+              console.error('Error al guardar tarea:', error);
+          } else {
+              cargarTareas();
+          }
+      } catch (error) {
+          console.error('Error al guardar tarea:', error);
+      }
+  }
 
-    await supabase.from('todos').insert([{
-        task: title,
-        description,
-        due_date: dueDate || null,
-        due_time: dueTime || null,
-        is_complete: false,
-        priority: priority
-    }]);
+  async function actualizarTarea(id, datosActualizados) {
+      try {
+          const { error } = await supabase
+            .from('tareas')
+            .update(datosActualizados)
+            .eq('id', id);
 
-    // Limpiar el formulario
-    taskForm.reset();
-    fetchTasks();
-});
+          if (error) {
+              console.error('Error al actualizar tarea:', error);
+          } else {
+              cargarTareas();
+          }
+      } catch (error) {
+          console.error('Error al actualizar tarea:', error);
+      }
+  }
 
-// Mostrar tareas
-async function fetchTasks() {
-  const filter = document.getElementById('filter-tasks')?.value;
-  let query = supabase.from('todos').select('*').order('created_at', { ascending: true });
-  if (filter === 'pending') query = query.eq('is_complete', false);
+  async function borrarTarea(id) {
+      try {
+          const { error } = await supabase
+            .from('tareas')
+            .delete()
+            .eq('id', id);
 
-  const { data: tasks, error } = await query;
+          if (error) {
+              console.error('Error al borrar tarea:', error);
+          } else {
+              cargarTareas();
+          }
+      } catch (error) {
+          console.error('Error al borrar tarea:', error);
+      }
+  }
 
-  taskList.innerHTML = '';
-  tasks.forEach(task => {
-    const li = document.createElement('li');
-    li.className = 'task-item';
-    li.dataset.id = task.id;
-    
-    // Zona izquierda (info)
-    const infoDiv = document.createElement('div');
-    infoDiv.className = 'task-info';
-    
-    // Título
-    const taskText = document.createElement('h3');
-    taskText.textContent = task.task;
-    if (task.is_complete) {
-      taskText.style.textDecoration = 'line-through';
-      taskText.style.color = '#888';
-    }
-    infoDiv.appendChild(taskText);
-    
-    // Descripción
-    if (task.description) {
-      const desc = document.createElement('p');
-      desc.textContent = task.description;
-      infoDiv.appendChild(desc);
-    }
-    
-    // Fecha y hora
-    if (task.due_date || task.due_time) {
-      const fecha = document.createElement('p');
-      fecha.innerHTML = `${task.due_date ? '📅 ' + formatDate(task.due_date) : ''} ${task.due_time ? '⏰ ' + task.due_time : ''}`;
-      infoDiv.appendChild(fecha);
-    }
-    
-    // Prioridad
-    const prioridad = document.createElement('p');
-    prioridad.innerHTML = `🔵 Prioridad: ${'⭐'.repeat(task.priority || 1)}`;
-    infoDiv.appendChild(prioridad);
-    
-    li.appendChild(infoDiv);
-    
-    // Zona derecha (botones)
-    const btns = document.createElement('div');
-    btns.className = 'task-buttons';
-    
-    // ✅ toggle
-    const toggleBtn = document.createElement('button');
-    toggleBtn.textContent = task.is_complete ? '✅' : '⬜️';
-    toggleBtn.addEventListener('click', () => toggleComplete(task.id, !task.is_complete));
-    btns.appendChild(toggleBtn);
-    
-    // ✏️ editar
-    const editBtn = document.createElement('button');
-    editBtn.textContent = '✏️';
-    editBtn.addEventListener('click', () => editTask(task.id, task.task));
-    btns.appendChild(editBtn);
-    
-    // 🗑️ borrar
-    const deleteBtn = document.createElement('button');
-    deleteBtn.textContent = '🗑️';
-    deleteBtn.addEventListener('click', () => deleteTask(task.id));
-    btns.appendChild(deleteBtn);
-    
-    li.appendChild(btns);
-    taskList.appendChild(li);    
+  async function marcarComoCompletada(idTarea, completada) {
+      try {
+          const { error } = await supabase
+            .from('tareas')
+            .update({ completada: completada })
+            .eq('id', idTarea);
+
+          if (error) {
+              console.error('Error al marcar como completada:', error);
+          } else {
+              cargarTareas();
+          }
+      } catch (error) {
+          console.error('Error al marcar como completada:', error);
+      }
+  }
+
+  // *** FUNCIONES PARA MANEJAR LA INTERFAZ DE USUARIO ***
+
+  function mostrarFormularioTarea() {
+      formularioNuevaTarea.classList.remove('oculto');
+      botonNuevaTarea.textContent = '✖ Cerrar';
+      formularioVisible = true;
+  }
+
+  function ocultarFormularioTarea() {
+      formularioNuevaTarea.classList.add('oculto');
+      botonNuevaTarea.textContent = '➕ Nueva tarea';
+      formularioVisible = false;
+      formularioTarea.reset(); // Limpiar el formulario
+  }
+
+  function mostrarTareas(tareasParaMostrar) {
+      listadoTareas.innerHTML = ''; // Limpiar el listado actual
+
+      const tareasFiltradas = tareasParaMostrar.filter(tarea => {
+          if (filtroActivo === 'noCompletadas') {
+              return !tarea.completada;
+          }
+          return true; // Mostrar todas las tareas si el filtro es 'todas'
+      });
+
+      if (tareasFiltradas.length === 0) {
+          listadoTareas.innerHTML = '<p>No hay tareas para mostrar con el filtro actual.</p>';
+          return;
+      }
+
+      tareasFiltradas.forEach(tarea => {
+          const tareaDiv = document.createElement('div');
+          tareaDiv.classList.add('tarea');
+          if (tarea.completada) {
+              tareaDiv.classList.add('completada');
+          }
+          tareaDiv.dataset.id = tarea.id; // Almacenar el ID de la tarea en el elemento
+
+          const tituloTarea = document.createElement('h3');
+          tituloTarea.classList.add('tarea-titulo');
+          tituloTarea.textContent = tarea.titulo;
+
+          const descripcionTarea = document.createElement('p');
+          descripcionTarea.classList.add('tarea-descripcion');
+          descripcionTarea.textContent = tarea.descripcion || '';
+
+          const fechaHoraTarea = document.createElement('p');
+          fechaHoraTarea.classList.add('tarea-fecha-hora');
+          const fecha = new Date(tarea.fecha);
+          const hora = tarea.hora;
+          fechaHoraTarea.textContent = `📅 ${fecha.toLocaleDateString()} ⏰ ${hora}`;
+
+          const prioridadTarea = document.createElement('p');
+          prioridadTarea.classList.add('tarea-prioridad');
+          prioridadTarea.textContent = '⭐'.repeat(tarea.prioridad);
+
+          const categoriaTarea = document.createElement('p');
+          categoriaTarea.classList.add('tarea-categoria');
+          const categoriaEncontrada = obtenerNombreCategoria(tarea.id_categoria);
+          categoriaTarea.textContent = `🏷️ ${categoriaEncontrada || '(Sin categoría)'}`;
+
+          const botonesTarea = document.createElement('div');
+          botonesTarea.classList.add('tarea-botones');
+
+          const botonCompletar = document.createElement('button');
+          botonCompletar.textContent = tarea.completada ? '✅ Completada' : '✅ Marcar como completada';
+          botonCompletar.addEventListener('click', () => marcarComoCompletada(tarea.id, !tarea.completada));
+
+          const botonEditar = document.createElement('button');
+          botonEditar.textContent = '✏️ Editar';
+          botonEditar.addEventListener('click', () => mostrarFormularioEdicion(tarea));
+
+          const botonBorrar = document.createElement('button');
+          botonBorrar.textContent = '🗑️ Borrar';
+          botonBorrar.addEventListener('click', () => borrarTarea(tarea.id));
+
+          botonesTarea.appendChild(botonCompletar);
+          botonesTarea.appendChild(botonEditar);
+          botonesTarea.appendChild(botonBorrar);
+
+          tareaDiv.appendChild(tituloTarea);
+          if (tarea.descripcion) {
+              tareaDiv.appendChild(descripcionTarea);
+          }
+          tareaDiv.appendChild(fechaHoraTarea);
+          tareaDiv.appendChild(prioridadTarea);
+          tareaDiv.appendChild(categoriaTarea);
+          tareaDiv.appendChild(botonesTarea);
+
+          listadoTareas.appendChild(tareaDiv);
+      });
+  }
+
+  function mostrarFormularioEdicion(tarea) {
+      const tareaDiv = document.querySelector(`.tarea[data-id="${tarea.id}"]`);
+      if (!tareaDiv) return;
+
+      const formularioEdicion = document.createElement('form');
+      formularioEdicion.classList.add('formulario-edicion');
+      formularioEdicion.dataset.id = tarea.id;
+
+      formularioEdicion.innerHTML = `
+          <div>
+              <label for="editar-titulo-${tarea.id}">Título:</label>
+              <input type="text" id="editar-titulo-${tarea.id}" name="titulo" value="${tarea.titulo}" required>
+          </div>
+          <div>
+              <label for="editar-descripcion-${tarea.id}">Descripción:</label>
+              <textarea id="editar-descripcion-${tarea.id}" name="descripcion">${tarea.descripcion || ''}</textarea>
+          </div>
+          <div>
+              <label for="editar-fecha-${tarea.id}">Fecha y hora:</label>
+              <input type="datetime-local" id="editar-fecha-${tarea.id}" name="fecha" value="${tarea.fecha ? tarea.fecha + 'T' + tarea.hora : ''}">
+          </div>
+          <div>
+              <label for="editar-prioridad-${tarea.id}">Prioridad (1–3):</label>
+              <select id="editar-prioridad-${tarea.id}" name="prioridad">
+                  <option value="1" ${tarea.prioridad === 1 ? 'selected' : ''}>⭐</option>
+                  <option value="2" ${tarea.prioridad === 2 ? 'selected' : ''}>⭐⭐</option>
+                  <option value="3" ${tarea.prioridad === 3 ? 'selected' : ''}>⭐⭐⭐</option>
+              </select>
+          </div>
+          <div>
+              <label for="editar-categoria-${tarea.id}">Categoría:</label>
+              <select id="editar-categoria-${tarea.id}" name="categoria">
+                  <option value="">(Sin categoría)</option>
+                  ${obtenerOpcionesCategorias(tarea.id_categoria)}
+              </select>
+          </div>
+          <button type="submit">Guardar Cambios</button>
+          <button type="button" class="boton-cancelar-edicion">Cancelar</button>
+      `;
+
+      tareaDiv.appendChild(formularioEdicion);
+
+      formularioEdicion.addEventListener('submit', (evento) => {
+          evento.preventDefault();
+          const idTarea = evento.target.dataset.id;
+          const titulo = document.getElementById(`editar-titulo-${idTarea}`).value;
+          const descripcion = document.getElementById(`editar-descripcion-${idTarea}`).value;
+          const fechaHora = document.getElementById(`editar-fecha-${idTarea}`).value;
+          const prioridad = parseInt(document.getElementById(`editar-prioridad-${idTarea}`).value);
+          const categoria = document.getElementById(`editar-categoria-${idTarea}`).value;
+
+          const fecha = fechaHora ? fechaHora.split('T')[0] : null;
+          const hora = fechaHora ? fechaHora.split('T')[1] : null;
+
+          const datosActualizados = {
+              titulo: titulo,
+              descripcion: descripcion,
+              fecha: fecha,
+              hora: hora,
+              prioridad: prioridad,
+              id_categoria: categoria || null
+          };
+          actualizarTarea(idTarea, datosActualizados);
+      });
+
+      const botonCancelar = formularioEdicion.querySelector('.boton-cancelar-edicion');
+      botonCancelar.addEventListener('click', () => {
+          tareaDiv.removeChild(formularioEdicion);
+      });
+  }
+
+  function obtenerOpcionesCategorias(categoriaSeleccionadaId) {
+      let opcionesHTML = '';
+      // Asumo que 'categorias' está en el scope global o ya ha sido cargado
+      if (typeof categorias !== 'undefined') {
+          categorias.forEach(categoria => {
+              opcionesHTML += `<option value="${categoria.id}" ${categoria.id === categoriaSeleccionadaId ? 'selected' : ''}>${categoria.nombre}</option>`;
+          });
+      }
+      return opcionesHTML;
+  }
+
+  function obtenerNombreCategoria(idCategoria) {
+      // Asumo que 'categorias' está en el scope global o ya ha sido cargado
+      if (typeof categorias !== 'undefined') {
+          const categoria = categorias.find(cat => cat.id === idCategoria);
+          return categoria ? categoria.nombre : null;
+      }
+      return null;
+  }
+
+  // *** EVENT LISTENERS ***
+
+  botonNuevaTarea.addEventListener('click', () => {
+      if (formularioVisible) {
+          ocultarFormularioTarea();
+      } else {
+          mostrarFormularioTarea();
+      }
   });
-}
 
-async function editTask(id) {
-    const { data: taskData, error } = await supabase
-      .from('todos')
-      .select('*')
-      .eq('id', id)
-      .single();
-  
-    if (error) {
-      alert('No se pudo cargar la tarea');
-      return;
-    }
-  
-    const li = [...document.querySelectorAll('.task-item')]
-      .find(el => el.dataset.id === String(id));
-  
-    if (!li) return;
-  
-    // Vaciar contenido y reemplazar por formulario
-    li.innerHTML = '';
-  
-    const form = document.createElement('form');
-    form.classList.add('edit-form');
-  
-    form.innerHTML = `
-      <input type="text" name="task" value="${taskData.task}" required />
-      <textarea name="description" placeholder="Descripción">${taskData.description || ''}</textarea>
-      <input type="date" name="due_date" value="${taskData.due_date || ''}" />
-      <input type="time" name="due_time" value="${taskData.due_time || ''}" />
-      <select name="priority">
-        <option value="1" ${taskData.priority == 1 ? 'selected' : ''}>⭐ (Baja)</option>
-        <option value="2" ${taskData.priority == 2 ? 'selected' : ''}>⭐⭐ (Media)</option>
-        <option value="3" ${taskData.priority == 3 ? 'selected' : ''}>⭐⭐⭐ (Alta)</option>
-      </select>
-      <div class="edit-actions">
-        <button type="submit">💾 Guardar</button>
-        <button type="button" class="cancel-btn">❌ Cancelar</button>
-      </div>
-    `;
-  
-    // Guardar cambios
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = new FormData(form);
-      await supabase.from('todos').update({
-        task: formData.get('task'),
-        description: formData.get('description'),
-        due_date: formData.get('due_date') || null,
-        due_time: formData.get('due_time') || null,
-        priority: parseInt(formData.get('priority')) || 1
-      }).eq('id', id);
-      fetchTasks();
-    });
-  
-    // Cancelar
-    form.querySelector('.cancel-btn').addEventListener('click', () => {
-      fetchTasks();
-    });
-  
-    li.appendChild(form);
-}
-  
+  botonCerrarFormulario.addEventListener('click', ocultarFormularioTarea);
 
+  formularioTarea.addEventListener('submit', (evento) => {
+      evento.preventDefault();
+      const titulo = document.getElementById('titulo').value;
+      const descripcion = document.getElementById('descripcion').value;
+      const fechaHora = document.getElementById('fecha').value;
+      const prioridad = parseInt(document.getElementById('prioridad').value);
+      const categoria = document.getElementById('categoria').value;
 
-// Borrar tarea
-async function deleteTask(id) {
-  await supabase.from('todos').delete().eq('id', id);
-  fetchTasks();
-}
+      const fecha = fechaHora ? fechaHora.split('T')[0] : null;
+      const hora = fechaHora ? fechaHora.split('T')[1] : null;
 
-async function toggleComplete(id, newStatus) {
-    await supabase.from('todos')
-      .update({ is_complete: newStatus })
-      .eq('id', id);
-    fetchTasks();
-  }
+      const nuevaTarea = {
+          id: crypto.randomUUID(), // Generar un ID único en el cliente (temporal)
+          titulo: titulo,
+          descripcion: descripcion,
+          fecha: fecha,
+          hora: hora,
+          prioridad: prioridad,
+          completada: false,
+          id_categoria: categoria || null
+      };
 
-  function formatDate(dateString) {
-    if (!dateString) return '';
-    return new Date(dateString).toLocaleDateString(); // sin idioma = usa el del sistema
-  }
-  
+      guardarTarea(nuevaTarea);
+      ocultarFormularioTarea();
+  });
+
+  filtroTodas.addEventListener('change', () => {
+      filtroActivo = 'todas';
+      mostrarTareas(tareas);
+  });
+
+  filtroNoCompletadas.addEventListener('change', () => {
+      filtroActivo = 'noCompletadas';
+      mostrarTareas(tareas);
+  });
+
+  // *** INICIALIZACIÓN ***
+
+  cargarCategorias();
+  cargarTareas();
+});

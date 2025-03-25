@@ -1,0 +1,189 @@
+body {
+  font-family: sans-serif;
+  margin: 20px;
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 800px;
+  margin-bottom: 20px;
+}
+
+h1, h2, h3 {
+  color: #333;
+}
+
+button {
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+#formularioNuevaTarea {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border: 1px solid #dee2e6;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 800px;
+  box-sizing: border-box;
+}
+
+#formularioNuevaTarea.oculto {
+  display: none;
+}
+
+#formularioTarea > div {
+  margin-bottom: 10px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+input[type="text"],
+input[type="datetime-local"],
+textarea,
+select {
+  width: calc(100% - 12px);
+  padding: 8px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 1em;
+}
+
+textarea {
+  resize: vertical;
+}
+
+#filtros {
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+#filtros label {
+  font-weight: normal;
+}
+
+#listadoTareas {
+  width: 100%;
+  max-width: 800px;
+}
+
+.tarea {
+  background-color: white;
+  border: 1px solid #e9ecef;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.tarea.completada {
+  background-color: #f0f8ff;
+  border-color: #add8e6;
+}
+
+.tarea-titulo {
+  font-weight: bold;
+}
+
+.tarea.completada .tarea-titulo {
+  text-decoration: line-through;
+}
+
+.tarea-descripcion {
+  grid-column: 1 / -1;
+  font-style: italic;
+  color: #6c757d;
+}
+
+.tarea-fecha-hora {
+  font-size: 0.9em;
+  color: #6c757d;
+}
+
+.tarea-prioridad {
+  font-size: 1.2em;
+}
+
+.tarea-categoria {
+  font-size: 0.9em;
+  color: #007bff;
+}
+
+.tarea-botones {
+  display: flex;
+  gap: 5px;
+}
+
+.tarea-botones button {
+  padding: 5px 10px;
+  font-size: 0.8em;
+}
+
+/* Estilos para el formulario de edición (inicialmente oculto) */
+.formulario-edicion {
+  grid-column: 1 / -1;
+  background-color: #f8f9fa;
+  padding: 15px;
+  border: 1px solid #dee2e6;
+  border-radius: 5px;
+  margin-top: 10px;
+}
+
+.formulario-edicion > div {
+  margin-bottom: 10px;
+}
+
+/* Estilos para hacerlo responsive */
+@media (max-width: 600px) {
+  header {
+      flex-direction: column;
+      align-items: flex-start;
+  }
+
+  header button {
+      margin-top: 10px;
+  }
+
+  #filtros {
+      flex-direction: column;
+      align-items: flex-start;
+  }
+
+  .tarea {
+      grid-template-columns: 1fr;
+  }
+
+  .tarea-botones {
+      flex-direction: column;
+      align-items: stretch;
+  }
+}
