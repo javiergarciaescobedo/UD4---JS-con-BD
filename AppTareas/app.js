@@ -10,7 +10,35 @@ const taskInput = document.getElementById('task-input');
 const taskList = document.getElementById('task-list');
 
 // Leer tareas al cargar la página
-document.addEventListener('DOMContentLoaded', fetchTasks);
+document.addEventListener('DOMContentLoaded', () => {
+  fetchTasks();
+  loadCategories();
+});
+
+// Mostrar/ocultar formulario
+const showFormBtn = document.getElementById('show-form-btn');
+const formContainer = document.getElementById('form-container');
+showFormBtn.addEventListener('click', () => {
+  formContainer.style.display = formContainer.style.display === 'none' ? 'block' : 'none';
+});
+
+// Cargar categorías desde Supabase
+async function loadCategories() {
+  const { data, error } = await supabase.from('categories').select('*');
+  const categorySelect = document.getElementById('task-category');
+  if (data) {
+    data.forEach(cat => {
+      const option = document.createElement('option');
+      option.value = cat.id;
+      option.textContent = cat.name;
+      categorySelect.appendChild(option);
+    });
+  }
+}
+
+// Filtrado por tareas completadas
+document.getElementById('filter-tasks').addEventListener('change', fetchTasks);
+
 
 taskForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -38,10 +66,11 @@ taskForm.addEventListener('submit', async (e) => {
 
 // Mostrar tareas
 async function fetchTasks() {
-  const { data: tasks, error } = await supabase
-    .from('todos')
-    .select('*')
-    .order('created_at', { ascending: true });
+  const filter = document.getElementById('filter-tasks')?.value;
+  let query = supabase.from('todos').select('*').order('created_at', { ascending: true });
+  if (filter === 'pending') query = query.eq('is_complete', false);
+
+  const { data: tasks, error } = await query;
 
   taskList.innerHTML = '';
   tasks.forEach(task => {
