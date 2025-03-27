@@ -1,3 +1,4 @@
+/* Estilos generales del body */
 body {
   font-family: sans-serif;
   margin: 20px;
@@ -7,6 +8,7 @@ body {
   align-items: center;
 }
 
+/* Estilos del encabezado (header) */
 header {
   display: flex;
   justify-content: space-between;
@@ -16,11 +18,11 @@ header {
   margin-bottom: 20px;
 }
 
-h1, h2, h3 {
+header h1, header h2, header h3 {
   color: #333;
 }
 
-button {
+header button#botonNuevaTarea {
   padding: 10px 15px;
   background-color: #007bff;
   color: white;
@@ -30,10 +32,11 @@ button {
   font-size: 1em;
 }
 
-button:hover {
+header button#botonNuevaTarea:hover {
   background-color: #0056b3;
 }
 
+/* Estilos del formulario de nueva tarea (#formularioNuevaTarea) */
 #formularioNuevaTarea {
   background-color: #f8f9fa;
   padding: 20px;
@@ -49,20 +52,21 @@ button:hover {
   display: none;
 }
 
-#formularioTarea > div {
+#formularioNuevaTarea form#formularioTarea > div {
   margin-bottom: 10px;
 }
 
-label {
+#formularioNuevaTarea form#formularioTarea label {
   display: block;
   margin-bottom: 5px;
   font-weight: bold;
 }
 
-input[type="text"],
-input[type="datetime-local"],
-textarea,
-select {
+#formularioNuevaTarea form#formularioTarea input[type="text"],
+#formularioNuevaTarea form#formularioTarea input[type="date"],
+#formularioNuevaTarea form#formularioTarea input[type="time"],
+#formularioNuevaTarea form#formularioTarea textarea,
+#formularioNuevaTarea form#formularioTarea select {
   width: calc(100% - 12px);
   padding: 8px;
   border: 1px solid #ced4da;
@@ -71,10 +75,11 @@ select {
   font-size: 1em;
 }
 
-textarea {
+#formularioNuevaTarea form#formularioTarea textarea {
   resize: vertical;
 }
 
+/* Estilos de la sección de filtros (#filtros) */
 #filtros {
   margin-bottom: 20px;
   width: 100%;
@@ -84,15 +89,21 @@ textarea {
   align-items: center;
 }
 
+#filtros h3 {
+  margin-right: 10px;
+}
+
 #filtros label {
   font-weight: normal;
 }
 
+/* Estilos del listado de tareas (#listadoTareas) */
 #listadoTareas {
   width: 100%;
   max-width: 800px;
 }
 
+/* Estilos individuales de la tarea (.tarea) */
 .tarea {
   background-color: white;
   border: 1px solid #e9ecef;
@@ -100,7 +111,7 @@ textarea {
   margin-bottom: 10px;
   border-radius: 5px;
   display: grid;
-  grid-template-columns: 1fr auto auto; /* Volvemos a tres columnas */
+  grid-template-columns: 1fr auto auto; /* Tres columnas */
   gap: 10px;
   align-items: start; /* Alineamos los items al inicio */
 }
@@ -165,16 +176,25 @@ textarea {
   display: flex;
   gap: 5px;
   grid-row: 3;
-  grid-column: 1; 
+  grid-column: 1;
   justify-content: flex-start;
 }
 
 .tarea-botones button {
   padding: 5px 10px;
   font-size: 0.8em;
+  background-color: #007bff; 
+  color: white;
+  border: none; 
+  border-radius: 5px; 
+  cursor: pointer; 
 }
 
-/* Estilos para el formulario de edición (inicialmente oculto) */
+.tarea-botones button:hover {
+  background-color: #0056b3; 
+}
+
+/* Estilos del formulario de edición (.formulario-edicion) */
 .formulario-edicion {
   grid-column: 1 / -1;
   background-color: #f8f9fa;
@@ -188,7 +208,7 @@ textarea {
   margin-bottom: 10px;
 }
 
-/* Estilos para hacerlo responsive */
+/* Estilos para hacerlo responsive (@media) */
 @media (max-width: 600px) {
   header {
       flex-direction: column;

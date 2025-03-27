@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
     // *******************************************************************************
 
-    // Elementos del DOM
+    // Elementos del DOM (Variables para interactuar con elementos HTML)
     const botonNuevaTarea = document.getElementById('botonNuevaTarea');
     const formularioNuevaTarea = document.getElementById('formularioNuevaTarea');
     const formularioTarea = document.getElementById('formularioTarea');
@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const filtroNoCompletadas = document.querySelector('input[value="noCompletadas"]');
     const selectCategoriaFormulario = document.getElementById('categoria');
 
+    // Variables de estado de la aplicación
     let tareas = [];
     let formularioVisible = false;
     let filtroActivo = 'todas';
@@ -75,7 +76,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const { error } = await supabase
               .from('tareas')
               .insert([tarea]);
-    
+
             if (error) {
                 console.error('Error al guardar tarea:', error);
             } else {
@@ -98,7 +99,7 @@ document.addEventListener('DOMContentLoaded', async () => {
               .from('tareas')
               .update(datosActualizados)
               .eq('id', id);
-    
+
             if (error) {
                 console.error('Error al actualizar tarea:', error);
             } else {
@@ -199,7 +200,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
                 fechaHoraTarea.textContent = textoFechaHora;
             } else {
-                fechaHoraTarea.textContent = '📅 Sin fecha'; 
+                fechaHoraTarea.textContent = '📅 Sin fecha';
             }
 
             const prioridadTarea = document.createElement('p');
@@ -297,7 +298,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const prioridad = parseInt(document.getElementById(`editar-prioridad-${idTarea}`).value);
             const categoria = document.getElementById(`editar-categoria-${idTarea}`).value;
             const fecha = document.getElementById(`editar-fecha-${idTarea}`).value;
-            const hora = document.getElementById(`editar-hora-${idTarea}`).value; 
+            const hora = document.getElementById(`editar-hora-${idTarea}`).value;
 
             const datosActualizados = {
                 titulo: titulo,
@@ -352,7 +353,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const prioridad = parseInt(document.getElementById('prioridad').value);
         const categoria = document.getElementById('categoria').value;
         const fecha = document.getElementById('fecha').value;
-        const hora = document.getElementById('hora').value; 
+        const hora = document.getElementById('hora').value;
 
         const nuevaTarea = {
             id: crypto.randomUUID(),
