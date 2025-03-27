@@ -66,10 +66,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function guardarTarea(tarea) {
         try {
+            if (tarea.hora === "") {
+                tarea.hora = null;
+            }
+            if (tarea.fecha === "") {
+                tarea.fecha = null;
+            }
             const { error } = await supabase
               .from('tareas')
               .insert([tarea]);
-
+    
             if (error) {
                 console.error('Error al guardar tarea:', error);
             } else {
@@ -82,11 +88,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function actualizarTarea(id, datosActualizados) {
         try {
+            if (datosActualizados.hora === "") {
+                datosActualizados.hora = null;
+            }
+            if (datosActualizados.fecha === "") {
+                datosActualizados.fecha = null;
+            }
             const { error } = await supabase
               .from('tareas')
               .update(datosActualizados)
               .eq('id', id);
-
+    
             if (error) {
                 console.error('Error al actualizar tarea:', error);
             } else {
@@ -179,9 +191,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const fechaHoraTarea = document.createElement('p');
             fechaHoraTarea.classList.add('tarea-fecha-hora');
-            const fecha = new Date(tarea.fecha);
-            const hora = tarea.hora;
-            fechaHoraTarea.textContent = `📅 ${fecha.toLocaleDateString()} ⏰ ${hora}`;
+            if (tarea.fecha) {
+                const fecha = new Date(tarea.fecha);
+                let textoFechaHora = `📅 ${fecha.toLocaleDateString()}`;
+                if (tarea.hora) {
+                    textoFechaHora += ` ⏰ ${tarea.hora}`;
+                }
+                fechaHoraTarea.textContent = textoFechaHora;
+            } else {
+                fechaHoraTarea.textContent = '📅 Sin fecha'; 
+            }
 
             const prioridadTarea = document.createElement('p');
             prioridadTarea.classList.add('tarea-prioridad');
@@ -243,7 +262,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>
             <div>
                 <label for="editar-fecha-${tarea.id}">Fecha y hora:</label>
-                <input type="datetime-local" id="editar-fecha-${tarea.id}" name="fecha" value="${tarea.fecha ? tarea.fecha + 'T' + tarea.hora : ''}">
+                <input type="date" id="editar-fecha-${tarea.id}" name="fecha" value="${tarea.fecha || ''}">
+            </div>
+            <div>
+                <label for="editar-hora-${tarea.id}">Hora:</label>
+                <input type="time" id="editar-hora-${tarea.id}" name="hora" value="${tarea.hora || ''}">
             </div>
             <div>
                 <label for="editar-prioridad-${tarea.id}">Prioridad (1–3):</label>
@@ -271,12 +294,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             const idTarea = evento.target.dataset.id;
             const titulo = document.getElementById(`editar-titulo-${idTarea}`).value;
             const descripcion = document.getElementById(`editar-descripcion-${idTarea}`).value;
-            const fechaHora = document.getElementById(`editar-fecha-${idTarea}`).value;
             const prioridad = parseInt(document.getElementById(`editar-prioridad-${idTarea}`).value);
             const categoria = document.getElementById(`editar-categoria-${idTarea}`).value;
-
-            const fecha = fechaHora ? fechaHora.split('T')[0] : null;
-            const hora = fechaHora ? fechaHora.split('T')[1] : null;
+            const fecha = document.getElementById(`editar-fecha-${idTarea}`).value;
+            const hora = document.getElementById(`editar-hora-${idTarea}`).value; 
 
             const datosActualizados = {
                 titulo: titulo,
@@ -328,12 +349,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         evento.preventDefault();
         const titulo = document.getElementById('titulo').value;
         const descripcion = document.getElementById('descripcion').value;
-        const fechaHora = document.getElementById('fecha').value;
         const prioridad = parseInt(document.getElementById('prioridad').value);
         const categoria = document.getElementById('categoria').value;
-
-        const fecha = fechaHora ? fechaHora.split('T')[0] : null;
-        const hora = fechaHora ? fechaHora.split('T')[1] : null;
+        const fecha = document.getElementById('fecha').value;
+        const hora = document.getElementById('hora').value; 
 
         const nuevaTarea = {
             id: crypto.randomUUID(),
